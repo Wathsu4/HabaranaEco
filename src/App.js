@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import logo from "../src/assets/HET_Icon_2.png";
+// import logo from "../src/assets/HET_Icon_2.png";
 import mainimg from "../src/assets/419427083_318627867824895_3522410460449317256_n.jpg";
 import img1 from "../src/assets/gallary1.jpg";
 import img2 from "../src/assets/gallary2.jpg";
@@ -26,7 +26,7 @@ import {
 } from "@fortawesome/free-brands-svg-icons";
 
 function App() {
-  const initialImages = [
+  const images = [
     img1,
     img2,
     img3,
@@ -42,53 +42,53 @@ function App() {
     img13,
     img14,
   ];
-  const [displayedImages, setDisplayedImages] = useState(
-    initialImages.slice(0, 6)
-  );
-  const [showMore, setShowMore] = useState(false);
-  const [clickedImageIndex, setClickedImageIndex] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [visibleImages, setVisibleImages] = useState(6);
+  const [showAll, setShowAll] = useState(false);
 
-  const handleShowMore = () => {
-    setDisplayedImages(initialImages);
-    setShowMore(true);
+  const openImage = (index) => {
+    setCurrentIndex(index);
+    setSelectedImage(images[index]);
   };
 
-  const handleShowLess = () => {
-    setDisplayedImages(initialImages.slice(0, 6));
-    setShowMore(false);
+  const closeImage = () => {
+    setSelectedImage(null);
   };
 
-  const handleImageClick = (index) => {
-    setClickedImageIndex(index);
+  const showNextImage = () => {
+    const newIndex = (currentIndex + 1) % images.length;
+    setCurrentIndex(newIndex);
+    setSelectedImage(images[newIndex]);
   };
 
-  const handleCloseClick = () => {
-    setClickedImageIndex(null);
+  const showPrevImage = () => {
+    const newIndex = (currentIndex - 1 + images.length) % images.length;
+    setCurrentIndex(newIndex);
+    setSelectedImage(images[newIndex]);
   };
 
-  const handleNextClick = () => {
-    setClickedImageIndex((prevIndex) =>
-      prevIndex === initialImages.length - 1 ? 0 : prevIndex + 1
-    );
+  const toggleImages = () => {
+    if (showAll) {
+      setVisibleImages(6);
+    } else {
+      setVisibleImages(images.length);
+    }
+    setShowAll(!showAll);
   };
-
-  const handlePreviousClick = () => {
-    setClickedImageIndex((prevIndex) =>
-      prevIndex === 0 ? initialImages.length - 1 : prevIndex - 1
-    );
-  };
-
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
-      <header className="bg-transparent py-4 px-32 flex justify-between items-center fixed top-0 left-0 w-full z-50">
-        <div className="flex items-center space-x-1">
-          <img src={logo} alt="Logo" className="h-12 w-24" />
-          <div className="text-white text-2xl font-bold font-serif">
-            Habarana <span className="text-green-600">E</span>co
+      <header className="bg-black/40 backdrop-blur-md py-4 px-32 flex justify-between items-center fixed top-0 left-0 w-full z-50">
+        <a href="#home">
+          <div className="flex items-center space-x-1">
+            {/* <img src={logo} alt="Logo" className="h-12 w-24" /> */}
+            <div className="text-white text-2xl font-bold font-serif">
+              Habarana <span className="text-green-600">E</span>co
+            </div>
           </div>
-        </div>
-        <nav className="space-x-4  text-lg">
+        </a>
+        <nav className="space-x-6  text-lg">
           <a
             href="#home"
             className="text-white hover:text-green-400 font-serif "
@@ -170,107 +170,76 @@ function App() {
           </div>
         </section>
 
-        {/* Gallery Section */}
-        <section
-          id="gallery"
-          className="px-8 py-12 bg-white relative bg-cover bg-center flex flex-col items-center"
-          style={{
-            backgroundImage: `url(${coolimg})`,
-            backgroundSize: "cover",
-          }}
-        >
-          {/* Overlay with reduced opacity */}
-          <div className="absolute inset-0 bg-black bg-opacity-70"></div>
+        <div className="flex flex-col min-h-screen ">
+          {/* Gallery Section */}
+          <section
+            id="gallery"
+            className="px-8 py-12 bg-white relative bg-cover bg-center flex flex-col items-center"
+            style={{
+              backgroundImage: `url(${coolimg})`, // Use backticks (`) for template literals
+              backgroundSize: "cover",
+            }}
+          >
+            {/* Overlay with reduced opacity */}
+            <div className="absolute inset-0 bg-black bg-opacity-70"></div>
 
-          {/* Content goes inside a relative container to overlay the opacity effect */}
-          <div className="relative z-10 w-full flex flex-col items-center">
-            <h2 className="text-4xl font-bold mb-4 text-green-600 text-center font-serif pb-2 pt-4">
-              Gallery
-            </h2>
-            <p className="text-m  text-white text-center font-serif  pb-8 ">
-              Step into a world of vibrant moments and captivating visuals. Our
-              gallery is a curated collection of snapshots that tell<br></br>
-              the story of our journey, celebrate our milestones, and showcase
-              the beauty around us. Each image is a window <br></br>into our
-              experiences, capturing the essence of what makes us unique.
-              <br></br>
-              Explore and immerse yourself in the stories we share through our
-              gallery.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 px-8 md:px-32">
-              {displayedImages.map((image, index) => (
-                <div
-                  key={index}
-                  className="flex justify-center"
-                  onClick={() => handleImageClick(index)}
-                >
+            {/* Content goes inside a relative container to overlay the opacity effect */}
+            <div className="relative z-10 w-full flex flex-col items-center">
+              <h2 className="text-4xl font-bold mb-4 text-green-600 text-center font-serif py-8">
+                Gallery
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-8 md:px-32">
+                {images.slice(0, visibleImages).map((image, index) => (
                   <img
+                    key={index}
                     src={image}
                     alt={`Gallery item ${index + 1}`}
-                    className="w-full h-48 object-cover rounded-lg cursor-pointer"
+                    className="w-full h-48 object-cover rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300"
+                    onClick={() => openImage(index)}
                   />
-                </div>
-              ))}
-            </div>
-
-            <div className="flex justify-center mt-8">
-              {showMore ? (
+                ))}
+              </div>
+              <div className="text-center mt-10">
                 <button
-                  onClick={handleShowLess}
-                  className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-700 focus:outline-none font-serif"
+                  onClick={toggleImages}
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-300"
                 >
-                  Show Less
+                  {showAll ? "Show Less" : "See More"}
                 </button>
-              ) : (
-                <button
-                  onClick={handleShowMore}
-                  className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-700 focus:outline-none font-serif"
-                >
-                  Show More
-                </button>
-              )}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* Display Clicked Image */}
-        {clickedImageIndex !== null && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
-            <div className="relative p-4 rounded-lg shadow-xl max-w-[520px] max-h-128 flex items-center">
-              {/* Previous Button */}
+          {/* Lightbox */}
+          {selectedImage && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
               <button
-                className="absolute left-[-60px] text-white p-4 rounded-full text-5xl z-10"
-                onClick={handlePreviousClick}
-              >
-                &lt;
-              </button>
-
-              {/* Image */}
-              <img
-                src={initialImages[clickedImageIndex]}
-                alt="Clicked"
-                className="w-full h-full object-contain"
-              />
-
-              {/* Next Button */}
-              <button
-                className="absolute right-[-60px] text-white p-4 rounded-full text-5xl z-10"
-                onClick={handleNextClick}
-              >
-                &gt;
-              </button>
-
-              {/* Close Button */}
-              <button
-                className="absolute top-0 right-0 text-[#D22B2B] text-5xl"
-                onClick={handleCloseClick}
+                className="absolute top-4 right-4 text-white text-3xl"
+                onClick={closeImage}
               >
                 &times;
               </button>
+              <button
+                className="absolute left-4 text-white text-3xl"
+                onClick={showPrevImage}
+              >
+                &#10094;
+              </button>
+              <img
+                src={selectedImage}
+                alt="Selected"
+                className="max-w-full max-h-full rounded-lg"
+              />
+              <button
+                className="absolute right-4 text-white text-3xl"
+                onClick={showNextImage}
+              >
+                &#10095;
+              </button>
             </div>
-          </div>
-        )}
+          )}
+        </div>
+
         {/* Contact Us Section */}
 
         <section id="contact" className="px-8 bg-gray-300 py-12">
